@@ -53,6 +53,8 @@
     aspect-ratio: 1 / 1;
     border: 1px solid black;
     border-radius: 7px;
+    font-size: 16px;
+    font-weight: 700;
 }
 
 .tall {
@@ -62,4 +64,14 @@
 .long {
     flex-grow: 1;
     aspect-ratio: 0;
+}
+
+#delBtn {
+    background-color: red;
+    color: white;
+}
+
+#equalBtn {
+    background-color: green;
+    color: white;
 }
