@@ -1,55 +1,99 @@
 const screen = document.querySelector("#screen");
-const screenBtns = document.querySelectorAll(".screenBtn");
-const mathBtns = document.querySelectorAll(".mathBtn");
+const numBtns = document.querySelectorAll(".numBtn");
+const operatorBtns = document.querySelectorAll(".operatorBtn");
 const equalBtn = document.querySelector("#equalBtn");
 const decimalBtn = document.querySelector("#decimalBtn");
 const delBtn = document.querySelector("#delBtn");
 
 let isAnswer = false;
-let num1 = null;
-let num2 = null;
-let operator = null;
+let num = "";
+let equation = [];
 
 const equations = {
     "+": add = (x, y) => x + y,
     "-": subtract = (x, y) => x - y,
     "*": multiply = (x, y) => x * y,
-    "/": divide = (x, y) => y === 0 ? "BOOOM!" : x / y,
-}
+    "/": divide = (x, y) => y === 0 ? "BOOM!" : x / y,
+};
+
+function roundTo(num, precision) {
+  const factor = Math.pow(10, precision)
+  return Math.round(num * factor) / factor
+};
 
 const operate = (x, mathSym, y) => {
-    return equations[mathSym](x, y);
+    return !y ? x : roundTo(equations[mathSym](x, y), 2);
+};
+
+const addNum = (btnVal) => {
+    if (isAnswer) {
+        reset();
+    };
+    
+    if (!num) {
+        num = 
+            btnVal === "." ? 
+            "0." : 
+            btnVal;
+    } else {
+        num += btnVal;
+    };
+
+    !equation[1] ? equation[0] = num : equation[2] = num;
+    updateScreen();
+};
+
+const addOperator = (btnVal) => {
+    if(equation.length === 1) {
+        if(isAnswer){
+            isAnswer = false;
+        }
+        equation.push(btnVal);
+        updateScreen();
+        num = ""; 
+    } else {
+        return
+    }
 }
 
-const extractEquation = (str) => {
-    let equation = str.split(" ");
-    equation[0] ? num1 = parseInt(equation[0]) : null;
-    equation[1] ? operator = equation[1] : null;
-    equation[2] ? num2 = parseInt(equation[2]) : null;
+const updateScreen = () => {
+    screen.textContent = equation.join(" ");
 }
 
-delBtn.addEventListener("click", () => screen.textContent = "");
+const reset = () => {
+    num = "";
+    equation = [];
+    isAnswer = false;
+    screen.textContent = "";
+}
 
-screenBtns.forEach(btn => {
-    btn.addEventListener("click", () => {
-        if (isAnswer) {
-            screen.textContent = btn.textContent;
-            isAnswer = !isAnswer;
-        } else {
-            screen.textContent += btn.textContent;
-        };
-    });
+numBtns.forEach(btn => {
+    btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        addNum(e.target.textContent);
+    })
 });
 
-mathBtns.forEach(btn => {
-    btn.addEventListener("click", () => {
-        screen.textContent += ` ${btn.textContent} `;
-        isAnswer = false;
-    })
+decimalBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (num.includes(".")) {
+        return;
+    } else {
+        addNum(e.target.textContent);
+    }
 })
 
+operatorBtns.forEach(btn => {
+    btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        addOperator(e.target.textContent);
+    })
+});
+
 equalBtn.addEventListener("click", () => {
-    extractEquation(screen.textContent);
-    screen.textContent = operate(num1, operator, num2);
+    screen.textContent = operate(parseFloat(equation[0]), equation[1], parseFloat(equation[2]));
+    equation.splice(0, 3, screen.textContent);
     isAnswer = true;
 })
+
+delBtn.addEventListener("click", reset);
